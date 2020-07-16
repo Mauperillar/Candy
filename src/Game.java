@@ -19,6 +19,12 @@ public class Game {
         }
     }
 
+    private void printGame(){
+        System.out.println("Vidas: "+ this.lifes);
+        System.out.println("Puntos: "+ this.points);
+        System.out.println("Movimientos restantes: "+ this.availableMovements + "\n");
+        this.board.prinBoard();
+    }
     public boolean reviewCandiesOnline() {
         // By row
         boolean hasChanged;
@@ -123,7 +129,7 @@ public class Game {
             }
         }
 
-        this.board.prinBoard();
+        this.printGame();
     }
 
     public void descendCandy(int[] rangeEmpty, Character eje, int index) {
@@ -153,7 +159,7 @@ public class Game {
             Object newCandy = this.candies.getRandomCandy();
             this.board.putPiece(0, index, newCandy);
         }
-        this.board.prinBoard();
+        this.printGame();
         System.out.println("################################");
         System.out.println();
     }
@@ -172,13 +178,12 @@ public class Game {
 
             for (int candy = 1; candy <= 2; candy++) {
                 eje = 'x';
+                System.out.println("\nIngrese posición Dulce " + candy);
                 for (int e = 1; e <= 2; e++) {
-                    System.out.println("Ingrese posición Dulce " + candy);
                     do {
                         System.out.print("    Posición " + eje + ": ");
                         if (eje.equals('x')) {
                             coordenada[0] = scanner.nextInt();
-                            System.out.println();
                             isValidPosition = isValidPositionCandy(coordenada[0], 'x');
                         } else {
                             coordenada[1] = scanner.nextInt();
@@ -202,15 +207,8 @@ public class Game {
                 }
             }
 
-            if (Math.abs(positionCandy1[0] - positionCandy2[0]) == 1
-                    || Math.abs(positionCandy1[0] - positionCandy2[0]) == 0) {
-                canExchange = true;
-            } else {
-                canExchange = false;
-            }
-
-            if (Math.abs(positionCandy1[1] - positionCandy2[1]) == 1
-                    || Math.abs(positionCandy1[1] - positionCandy2[1]) == 0) {
+            if (Math.abs(positionCandy1[0] - positionCandy2[0]) == 1 && Math.abs(positionCandy1[1] - positionCandy2[1]) == 0
+                    || Math.abs(positionCandy1[0] - positionCandy2[0]) == 0 && Math.abs(positionCandy1[1] - positionCandy2[1]) == 1) {
                 canExchange = true;
             } else {
                 canExchange = false;
@@ -234,7 +232,12 @@ public class Game {
         if(!hadRepeated){
             this.board.putPiece(positionCandy1[0], positionCandy1[1], candy2);
             this.board.putPiece(positionCandy2[0], positionCandy2[1], candy1);
+
+            System.out.println("/!/  No se puede intercambiar estos dulces, intente con otros para crea una fila con más de 3 dulces seguidos\n");
+            this.printGame();
         }
+
+        this.availableMovements--;
 
     }
 
