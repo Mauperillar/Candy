@@ -19,221 +19,191 @@ public class Game {
         }
     }
 
-    private void printGame(){
-        System.out.println("Vidas: "+ this.lifes);
-        System.out.println("Puntos: "+ this.points);
-        System.out.println("Movimientos restantes: "+ this.availableMovements + "\n");
+    private void printGame() {
+        System.out.println("Vidas: " + this.lifes);
+        System.out.println("Puntos: " + this.points);
+        System.out.println("Movimientos restantes: " + this.availableMovements + "\n");
         this.board.prinBoard();
-    }
-    public boolean reviewCandiesOnline() {
-        // By row
-        boolean hasChanged;
-        boolean hadRepeated = false;
-        int numberRepeatedCandys = 0;
-        do {
-            hasChanged = false;
-
-            int[] rangeRepeat = new int[2];
-            for (int row = this.board.getWidth() - 1; row >= 0; row--) {
-                rangeRepeat = this.rangeCandiesRepeated(this.board.getRow(row));
-                if (rangeRepeat != null) {
-                    this.removeCandyOnline(rangeRepeat[0], rangeRepeat[1], 'x', row);
-                    numberRepeatedCandys = rangeRepeat[1] - rangeRepeat[0] +1;
-                    this.sumPoints(numberRepeatedCandys);
-                    this.descendCandy(rangeRepeat, 'x', row);
-                    hasChanged = true;
-                    hadRepeated = true;
-                    rangeRepeat = null;
-                }
-            }
-
-            for (int column = this.board.getHeight() - 1; column >= 0; column--) {
-                rangeRepeat = this.rangeCandiesRepeated(this.board.getColumn(column));
-                if (rangeRepeat != null) {
-                    this.removeCandyOnline(rangeRepeat[0], rangeRepeat[1], 'y', column);
-                    numberRepeatedCandys = rangeRepeat[1] - rangeRepeat[0] +1;
-                    this.sumPoints(numberRepeatedCandys);
-                    this.descendCandy(rangeRepeat, 'y', column);
-                    hasChanged = true;
-                    hadRepeated = true;
-                    rangeRepeat = null;
-                }
-            }
-
-        } while (hasChanged);
-        return hadRepeated;
+        System.out.println();
     }
 
-    private void sumPoints(int numberRepeatedCandys){
-        switch(numberRepeatedCandys){
-            case 3: 
+    private void sumPoints(int numberRepeatedCandys) {
+        switch (numberRepeatedCandys) {
+            case 3:
                 this.points += 50;
                 break;
-            case 4: 
+            case 4:
                 this.points += 100;
                 break;
-            case 5: 
+            case 5:
                 this.points += 200;
                 break;
-            case 6: 
+            case 6:
                 this.points += 400;
                 break;
         }
     }
 
-    private int[] rangeCandiesRepeated(Object[] line) {
-        int countRepeatCandy = 1;
-        Object previousCandy = ' ';
-        Object currentCandy;
-        int[] range = new int[2];
+    public boolean rewievRepeatedCandiesOnBoard() {
+        boolean hasTheBoardChanged;
+        boolean haveRepeatedCandies = false;
+        int[] intervalRepeat = new int[2];
+        Character[] axes = {'x', 'y'};
 
-        for (int i = 0; i < line.length; i++) {
-            currentCandy = line[i];
-            if (previousCandy.equals(currentCandy)) {
+        do {
+            hasTheBoardChanged = false;
+
+            for(Character axis: axes){
+                int heigth;
+                if(axis.equals('x')){
+                    heigth = this.board.getWidth();
+                }else{
+                    heigth = this.board.getHeight();
+                }
+    
+                for(int indexAxis=heigth-1; indexAxis>=0; indexAxis--){
+                    intervalRepeat = null;
+                    
+                    if(axis.equals('x')){
+                        intervalRepeat = this.intervalCandiesRepeated(this.board.getRow(indexAxis));
+                    }else{
+                        intervalRepeat = this.intervalCandiesRepeated(this.board.getColumn(indexAxis));
+                    }
+                    
+                    if (intervalRepeat != null) {
+                        int numberRepeatedCandys = intervalRepeat[1] - intervalRepeat[0] + 1;
+                        this.sumPoints(numberRepeatedCandys);
+    
+                        this.removeCandyOnline(intervalRepeat[0], intervalRepeat[1], axis, indexAxis);
+                        this.descendCandy(intervalRepeat, axis, indexAxis);
+    
+                        hasTheBoardChanged = true;
+                        haveRepeatedCandies = true;
+                    }
+                    
+                }
+            }    
+        } while (hasTheBoardChanged);
+
+        return haveRepeatedCandies;
+    }
+
+    private int[] intervalCandiesRepeated(Object[] line) {
+        int countRepeatCandy = 1;
+        Object currentCandy, nextCandy;
+        int[] interval = new int[2];
+
+        for (int index = 0; index < line.length; index++) {
+            currentCandy = line[index];
+            nextCandy = line[index+1];
+            if (nextCandy.equals(currentCandy)) {
                 countRepeatCandy++;
             } else {
                 if (countRepeatCandy >= 3) {
-                    range[0] = i - countRepeatCandy;
-                    range[1] = i - 1;
+                    interval[0] = index - countRepeatCandy;
+                    interval[1] = index;
                     break;
                 } else {
                     countRepeatCandy = 1;
                 }
-            }
-
-            previousCandy = currentCandy;
-
-            if (countRepeatCandy >= 3 && i == line.length - 1) {
-                range[0] = i + 1 - countRepeatCandy;
-                range[1] = i;
-                break;
             }
         }
 
         if (countRepeatCandy < 3) {
             return null;
         } else {
-            return range;
+            return interval;
         }
 
     }
 
-    public void removeCandyOnline(int from, int to, Character eje, int index) {
-        System.out.println("Removiendo dulces repetidos");
+    public void removeCandyOnline(int from, int to, Character eje, int indexAxis) {
+        System.out.println("/// Removiendo dulces repetidos ///");
         System.out.println();
         for (int i = from; i <= to; i++) {
             if (eje.equals('x')) {
-                this.board.removePiece(index, i);
+                this.board.removePiece(indexAxis, i);
             } else if (eje.equals('y')) {
-                this.board.removePiece(i, index);
+                this.board.removePiece(i, indexAxis);
             }
         }
 
         this.printGame();
     }
 
-    public void descendCandy(int[] rangeEmpty, Character eje, int index) {
-        Object previousPiece;
-        System.out.println("Bajando nuevos dulces");
-        System.out.println();
+    public void descendCandy(int[] rangeEmpty, Character eje, int indexAxis) {
+        
         if (eje.equals('x')) {
-            for (int column = rangeEmpty[0]; column <= rangeEmpty[1]; column++) {
-                for (int row = index; row > 0; row--) {
-                    previousPiece = this.board.getPiece(row - 1, column);
-                    if (previousPiece.equals('_')) {
-                        previousPiece = this.candies.getRandomCandy();
-                    }
-                    this.board.putPiece(row, column, previousPiece);
-                }
-                Object newCandy = this.candies.getRandomCandy();
-                this.board.putPiece(0, column, newCandy);
-            }
+            this.descendCandyXAxis(rangeEmpty, indexAxis);
         } else if (eje.equals('y')) {
-            for (int row = rangeEmpty[1]; row > 0; row--) {
-                previousPiece = this.board.getPiece(row - 1, index);
+            this.descendCandyYAxis(rangeEmpty, indexAxis);
+        }
+
+        System.out.println("\n"+"################################");
+        System.out.println("/// Bajando nuevos dulces ///"+"\n");
+        this.printGame();
+    }
+
+    private void descendCandyXAxis(int[] rangeEmpty, int indexRow){
+        Object previousPiece;
+        for (int column = rangeEmpty[0]; column <= rangeEmpty[1]; column++) {
+            for (int row = indexRow; row > 0; row--) {
+                previousPiece = this.board.getPiece(row - 1, column);
                 if (previousPiece.equals('_')) {
                     previousPiece = this.candies.getRandomCandy();
                 }
-                this.board.putPiece(row, index, previousPiece);
+                this.board.putPiece(row, column, previousPiece);
             }
             Object newCandy = this.candies.getRandomCandy();
-            this.board.putPiece(0, index, newCandy);
+            this.board.putPiece(0, column, newCandy);
         }
-        this.printGame();
-        System.out.println("################################");
-        System.out.println();
+    }
+
+    private void descendCandyYAxis(int[] rangeEmpty, int indexColumn){
+        Object previousPiece;
+        for (int row = rangeEmpty[1]; row > 0; row--) {
+            previousPiece = this.board.getPiece(row - 1, indexColumn);
+            if (previousPiece.equals('_')) {
+                previousPiece = this.candies.getRandomCandy();
+            }
+            this.board.putPiece(row, indexColumn, previousPiece);
+        }
+        Object newCandy = this.candies.getRandomCandy();
+        this.board.putPiece(0, indexColumn, newCandy);
     }
 
     public void exchangeCandy() {
-        Scanner scanner = new Scanner(System.in);
-        Character eje = 'x';
         int[] positionCandy1 = new int[2];
         int[] positionCandy2 = new int[2];
-        int[] coordenada = new int[2];
-        boolean isValidPosition;
         boolean canExchange = false;
         boolean hadRepeated = false;
 
         do {
-
             for (int candy = 1; candy <= 2; candy++) {
-                eje = 'x';
                 System.out.println("\nIngrese posición Dulce " + candy);
-                for (int e = 1; e <= 2; e++) {
-                    do {
-                        System.out.print("    Posición " + eje + ": ");
-                        if (eje.equals('x')) {
-                            coordenada[0] = scanner.nextInt();
-                            isValidPosition = isValidPositionCandy(coordenada[0], 'x');
-                        } else {
-                            coordenada[1] = scanner.nextInt();
-                            isValidPosition = isValidPositionCandy(coordenada[1], 'y');
-                        }
 
-                        if(!isValidPosition){
-                            System.out.println("/!/  Posición no valida vuelva a ingresarla\n");
-                        }
-                        
-                    } while (!isValidPosition);
-
-                    if (candy == 1) {
-                        positionCandy1[0] = coordenada[0];
-                        positionCandy1[1] = coordenada[1];
-                    } else if (candy == 2) {
-                        positionCandy2[0] = coordenada[0];
-                        positionCandy2[1] = coordenada[1];
-                    }
-                    eje = 'y';
+                if (candy == 1) {
+                    positionCandy1 = this.getCandyPositionByUser();
+                } else if (candy == 2) {
+                    positionCandy2 = this.getCandyPositionByUser();
                 }
             }
+            canExchange = this.board.T_linedPiecesTogether(positionCandy1, positionCandy2);
 
-            if (Math.abs(positionCandy1[0] - positionCandy2[0]) == 1 && Math.abs(positionCandy1[1] - positionCandy2[1]) == 0
-                    || Math.abs(positionCandy1[0] - positionCandy2[0]) == 0 && Math.abs(positionCandy1[1] - positionCandy2[1]) == 1) {
-                canExchange = true;
-            } else {
-                canExchange = false;
-            }
-
-            if(!canExchange){
-                System.out.println("/!/  Posiciónes no validas vuelva a ingresarlas\n");
+            if (!canExchange) {
+                System.out.println("/!/  Posiciónes no validas pata intercambiar dulces, vuelva a ingresarlas\n");
             }
         } while (!canExchange);
 
-        
+        this.board.changePositionBetweenPieces(positionCandy1, positionCandy2);
 
-        Object candy1 = this.board.getPiece(positionCandy1[0], positionCandy1[1]);
-        Object candy2 = this.board.getPiece(positionCandy2[0], positionCandy2[1]);
+        hadRepeated = this.rewievRepeatedCandiesOnBoard();
 
-        this.board.putPiece(positionCandy1[0], positionCandy1[1], candy2);
-        this.board.putPiece(positionCandy2[0], positionCandy2[1], candy1);
+        if (!hadRepeated) {
+            this.board.changePositionBetweenPieces(positionCandy1, positionCandy2);
 
-        hadRepeated = this.reviewCandiesOnline();
-
-        if(!hadRepeated){
-            this.board.putPiece(positionCandy1[0], positionCandy1[1], candy2);
-            this.board.putPiece(positionCandy2[0], positionCandy2[1], candy1);
-
-            System.out.println("/!/  No se puede intercambiar estos dulces, intente con otros para crea una fila con más de 3 dulces seguidos\n");
+            System.out.println(
+                    "/!/  No se puede intercambiar estos dulces, intente con otros para crea una fila con más de 3 dulces seguidos\n");
             this.printGame();
         }
 
@@ -241,16 +211,30 @@ public class Game {
 
     }
 
-    private boolean isValidPositionCandy(int position, Character eje) {
-        boolean isValidPosition;
-        if (eje.equals('x') && position < 0 || position >= this.board.getWidth()) {
-            isValidPosition = false;
-        } else if (eje.equals('y') && position < 0 || position >= this.board.getHeight()) {
-            isValidPosition = false;
-        } else {
-            isValidPosition = true;
-        }
-        return isValidPosition;
-    }
+    private int[] getCandyPositionByUser() {
+        int[] coordinate = new int[2];
+        boolean isValidPosition = false;
+        Scanner scanner = new Scanner(System.in);
 
+        Character currentAxis = 'x';
+
+        for (int indexAxis = 0; indexAxis <= 1; indexAxis++) {
+
+            do {
+                System.out.print("    Posición " + currentAxis + ": ");
+                coordinate[indexAxis] = scanner.nextInt();
+                isValidPosition = this.board.isValidPositionPiece(coordinate[indexAxis], currentAxis);
+
+                if (!isValidPosition) {
+                    System.out.println("/!/  Posición no valida vuelva a ingresarla\n");
+                }
+
+            } while (!isValidPosition);
+            // Change axis
+            currentAxis = 'y';
+        }
+
+        scanner.close();
+        return coordinate;
+    }
 }

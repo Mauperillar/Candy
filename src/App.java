@@ -8,7 +8,7 @@ public class App {
         do {
             Game newGame = new Game();
             newGame.board.prinBoard();
-            newGame.reviewCandiesOnline();
+            newGame.rewievRepeatedCandiesOnBoard();
 
             while (newGame.availableMovements > 0) {
                 newGame.exchangeCandy();
