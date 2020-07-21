@@ -41,7 +41,7 @@ public class Board {
         return this.board[row][column];
     }
 
-    public void prinBoard(){
+    public void printBoard(){
 
         //Imprimir encabezado
         for(int i = -1; i<this.width; i++){

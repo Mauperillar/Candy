@@ -1,14 +1,52 @@
 import java.util.Scanner;
 
 public class Game {
-    Board board = new Board();
-    Candies candies = new Candies();
-    int availableMovements = 50;
-    int points = 0;
-    int lifes = 5;
+    private Board board = new Board();
+    private Candies candies = new Candies();
+    private Player player;
+    private int availableMovements = 50;
+    private int points = 0;
+
+    Scanner scanner = new Scanner(System.in);
 
     Game() {
-        this.fillAllBoard();
+        System.out.print("Escriba su nombre: ");
+        this.player = new Player(this.scanner.nextLine());
+        this.startGame();
+    }
+
+    private void startGame() {
+        boolean canToPlay = this.canToPlay();
+        boolean wantToPlay = true;
+
+        while (canToPlay && wantToPlay) {
+            this.fillAllBoard();
+            this.printGame();
+            this.rewievRepeatedCandiesOnBoard();
+
+            while (this.availableMovements > 0 && this.points < 1000) {
+                this.exchangeCandy();
+            }
+
+            if (this.points < 1000) {
+                this.player.decreaseLife(1);
+            } else {
+                this.player.levelUp();
+            }
+
+            canToPlay = this.canToPlay();
+            if (canToPlay) {
+                wantToPlay = this.scanner.nextBoolean();
+            }
+        }
+    }
+
+    private boolean canToPlay() {
+        boolean can = this.player.getLifes() > 0;
+        if (!can) {
+            System.out.println("Oh no! No tienes más vidas para jugar");
+        }
+        return can;
     }
 
     private final void fillAllBoard() {
@@ -20,10 +58,10 @@ public class Game {
     }
 
     private void printGame() {
-        System.out.println("Vidas: " + this.lifes);
+        System.out.println("Vidas: " + this.player.getLifes());
         System.out.println("Puntos: " + this.points);
         System.out.println("Movimientos restantes: " + this.availableMovements + "\n");
-        this.board.prinBoard();
+        this.board.printBoard();
         System.out.println();
     }
 
@@ -44,64 +82,72 @@ public class Game {
         }
     }
 
-    public boolean rewievRepeatedCandiesOnBoard() {
-        boolean hasTheBoardChanged;
+    private boolean rewievRepeatedCandiesOnBoard() {
         boolean haveRepeatedCandies = false;
+        boolean hasTheBoardChanged;
         int[] intervalRepeat = new int[2];
-        Character[] axes = {'x', 'y'};
+        Character[] axes = { 'x', 'y' };
 
         do {
             hasTheBoardChanged = false;
 
-            for(Character axis: axes){
+            for (Character axis : axes) {
                 int heigth;
-                if(axis.equals('x')){
+                if (axis.equals('x')) {
                     heigth = this.board.getWidth();
-                }else{
+                } else {
                     heigth = this.board.getHeight();
                 }
-    
-                for(int indexAxis=heigth-1; indexAxis>=0; indexAxis--){
+
+                for (int indexAxis = heigth - 1; indexAxis >= 0; indexAxis--) {
                     intervalRepeat = null;
-                    
-                    if(axis.equals('x')){
-                        intervalRepeat = this.intervalCandiesRepeated(this.board.getRow(indexAxis));
-                    }else{
-                        intervalRepeat = this.intervalCandiesRepeated(this.board.getColumn(indexAxis));
+
+                    if (axis.equals('x')) {
+                        intervalRepeat = this.intervalCandiesRepeated(this.board.getRow(indexAxis), 3);
+                    } else {
+                        intervalRepeat = this.intervalCandiesRepeated(this.board.getColumn(indexAxis), 3);
                     }
-                    
+
                     if (intervalRepeat != null) {
                         int numberRepeatedCandys = intervalRepeat[1] - intervalRepeat[0] + 1;
                         this.sumPoints(numberRepeatedCandys);
-    
+
                         this.removeCandyOnline(intervalRepeat[0], intervalRepeat[1], axis, indexAxis);
                         this.descendCandy(intervalRepeat, axis, indexAxis);
-    
+
                         hasTheBoardChanged = true;
                         haveRepeatedCandies = true;
                     }
-                    
+
                 }
-            }    
+            }
         } while (hasTheBoardChanged);
 
         return haveRepeatedCandies;
     }
 
-    private int[] intervalCandiesRepeated(Object[] line) {
+    private int[] intervalCandiesRepeated(Object[] line, int minRepeat){
+        int[] interval = this.intervalCandiesRepeated(line, minRepeat, 0, line.length-1);
+        return interval;
+    }
+    private int[] intervalCandiesRepeated(Object[] line, int minRepeat,int initIndex,int endIndex) {
         int countRepeatCandy = 1;
         Object currentCandy, nextCandy;
         int[] interval = new int[2];
 
-        for (int index = 0; index < line.length; index++) {
+        for (int index = initIndex; index < endIndex; index++) {
             currentCandy = line[index];
-            nextCandy = line[index+1];
+            nextCandy = line[index + 1];
+
+            if (countRepeatCandy == 1) {
+                interval[0] = index;
+            }
+
             if (nextCandy.equals(currentCandy)) {
                 countRepeatCandy++;
+                interval[1] = index + 1;
             } else {
-                if (countRepeatCandy >= 3) {
-                    interval[0] = index - countRepeatCandy;
-                    interval[1] = index;
+                if (countRepeatCandy >= minRepeat) {
                     break;
                 } else {
                     countRepeatCandy = 1;
@@ -109,7 +155,7 @@ public class Game {
             }
         }
 
-        if (countRepeatCandy < 3) {
+        if (countRepeatCandy < minRepeat) {
             return null;
         } else {
             return interval;
@@ -117,7 +163,7 @@ public class Game {
 
     }
 
-    public void removeCandyOnline(int from, int to, Character eje, int indexAxis) {
+    private void removeCandyOnline(int from, int to, Character eje, int indexAxis) {
         System.out.println("/// Removiendo dulces repetidos ///");
         System.out.println();
         for (int i = from; i <= to; i++) {
@@ -131,20 +177,20 @@ public class Game {
         this.printGame();
     }
 
-    public void descendCandy(int[] rangeEmpty, Character eje, int indexAxis) {
-        
+    private void descendCandy(int[] rangeEmpty, Character eje, int indexAxis) {
+
         if (eje.equals('x')) {
             this.descendCandyXAxis(rangeEmpty, indexAxis);
         } else if (eje.equals('y')) {
             this.descendCandyYAxis(rangeEmpty, indexAxis);
         }
 
-        System.out.println("\n"+"################################");
-        System.out.println("/// Bajando nuevos dulces ///"+"\n");
+        System.out.println("\n" + "################################");
+        System.out.println("/// Bajando nuevos dulces ///" + "\n");
         this.printGame();
     }
 
-    private void descendCandyXAxis(int[] rangeEmpty, int indexRow){
+    private void descendCandyXAxis(int[] rangeEmpty, int indexRow) {
         Object previousPiece;
         for (int column = rangeEmpty[0]; column <= rangeEmpty[1]; column++) {
             for (int row = indexRow; row > 0; row--) {
@@ -159,7 +205,7 @@ public class Game {
         }
     }
 
-    private void descendCandyYAxis(int[] rangeEmpty, int indexColumn){
+    private void descendCandyYAxis(int[] rangeEmpty, int indexColumn) {
         Object previousPiece;
         for (int row = rangeEmpty[1]; row > 0; row--) {
             previousPiece = this.board.getPiece(row - 1, indexColumn);
@@ -172,7 +218,7 @@ public class Game {
         this.board.putPiece(0, indexColumn, newCandy);
     }
 
-    public void exchangeCandy() {
+    private void exchangeCandy() {
         int[] positionCandy1 = new int[2];
         int[] positionCandy2 = new int[2];
         boolean canExchange = false;
@@ -214,7 +260,6 @@ public class Game {
     private int[] getCandyPositionByUser() {
         int[] coordinate = new int[2];
         boolean isValidPosition = false;
-        Scanner scanner = new Scanner(System.in);
 
         Character currentAxis = 'x';
 
@@ -222,7 +267,7 @@ public class Game {
 
             do {
                 System.out.print("    Posición " + currentAxis + ": ");
-                coordinate[indexAxis] = scanner.nextInt();
+                coordinate[indexAxis] = this.scanner.nextInt();
                 isValidPosition = this.board.isValidPositionPiece(coordinate[indexAxis], currentAxis);
 
                 if (!isValidPosition) {
@@ -234,7 +279,6 @@ public class Game {
             currentAxis = 'y';
         }
 
-        scanner.close();
         return coordinate;
     }
 }
