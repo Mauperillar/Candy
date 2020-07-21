@@ -25,6 +25,10 @@ public class Game {
             this.rewievRepeatedCandiesOnBoard();
 
             while (this.availableMovements > 0 && this.points < 1000) {
+                if(!this.canMakeMoreMovements()){
+                    System.out.println("No que crazy");
+                    this.fillAllBoard();
+                }
                 this.exchangeCandy();
             }
 
@@ -280,5 +284,137 @@ public class Game {
         }
 
         return coordinate;
+    }
+
+    private boolean canMakeMoreMovements() {
+        int[] intervalRepeat = new int[2];
+        Character[] axes = { 'x', 'y' };
+
+        for (Character axis : axes) {
+            int heigth;
+            if (axis.equals('x')) {
+                heigth = this.board.getWidth();
+            } else {
+                heigth = this.board.getHeight();
+            }
+
+            Object[] lineToCheck = new Object[heigth];
+
+            for (int indexAxis = heigth - 1; indexAxis >= 0; indexAxis--) {
+                intervalRepeat = null;
+
+                if (axis.equals('x')) {
+                    lineToCheck = this.board.getRow(indexAxis);
+                } else {
+                    lineToCheck = this.board.getColumn(indexAxis);
+                }
+
+                intervalRepeat = this.intervalCandiesRepeated(lineToCheck, 2);
+                int initIndex = 0;
+                int endIndex = heigth-1;
+                while(intervalRepeat!=null){
+                    //Verificar moviendo dulces horizontalmente
+                    if(intervalRepeat[0]>1){
+                        if (axis.equals('x')) {
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(indexAxis, intervalRepeat[0]-2);
+                        } else {
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(intervalRepeat[0]-2, indexAxis);
+                        }
+                    }
+
+                    if(intervalRepeat[1]<heigth-2){
+                        if (axis.equals('x')) {
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(indexAxis, intervalRepeat[0]+2);
+                        } else {
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(intervalRepeat[0]+2, indexAxis);
+                        }
+                    }
+                    if(this.intervalCandiesRepeated(lineToCheck, 2, initIndex,endIndex)==null){
+                        return true;
+                    }
+
+                    if(axis.equals('x')){
+                        if(intervalRepeat[0]>1){
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(indexAxis, intervalRepeat[0]-2);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getRow(indexAxis);
+                            }
+                        }
+
+                        if(intervalRepeat[1]<heigth-2){
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(indexAxis, intervalRepeat[0]+2);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getRow(indexAxis);
+                            }
+                        }
+
+                        if(indexAxis>1){
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(indexAxis-1, intervalRepeat[0]);
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(indexAxis-1, intervalRepeat[1]);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getRow(indexAxis);
+                            }
+                        }
+
+                        if(indexAxis<this.board.getHeight()-1){
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(indexAxis+1, intervalRepeat[0]);
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(indexAxis+1, intervalRepeat[0]);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getRow(indexAxis);
+                            }
+                        }
+                    }else  if(axis.equals('y')){
+                        if(intervalRepeat[0]>1){
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(intervalRepeat[0]-2, indexAxis);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getColumn(indexAxis);
+                            }
+                        }
+
+                        if(intervalRepeat[1]<heigth-2){
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(intervalRepeat[0]+2, indexAxis);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getColumn(indexAxis);
+                            }
+                        }
+                        //Cambiar horizontalemnte la columna 'y' por dulces de la izquierda
+                        if(indexAxis>1){
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(intervalRepeat[0], indexAxis-1);
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(intervalRepeat[1], indexAxis-1);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getColumn(indexAxis);
+                            }
+                        }
+                        //Cambiar horizontalemnte la columna 'y' por dulces de la derecha
+                        if(indexAxis<this.board.getWidth()-1){
+                            lineToCheck[intervalRepeat[0]-1] = this.board.getPiece(intervalRepeat[0], indexAxis+1);
+                            lineToCheck[intervalRepeat[1]+1] = this.board.getPiece(intervalRepeat[1], indexAxis+1);
+                            if(this.intervalCandiesRepeated(lineToCheck, 3, initIndex,endIndex)==null){
+                                return true;
+                            }else{
+                                lineToCheck = this.board.getColumn(indexAxis);
+                            }
+                        }
+                    }
+                
+                    initIndex = intervalRepeat[1]+1;
+                }
+            }
+        }
+        return false;
     }
 }
