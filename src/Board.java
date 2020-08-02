@@ -21,6 +21,14 @@ public class Board {
         return this.width;
     }
 
+    public void changePositionBetweenPieces(int[] positionPiece1, int positionPiece2[]){
+        Object candy1 = this.getPiece(positionPiece1[0], positionPiece1[1]);
+        Object candy2 = this.getPiece(positionPiece2[0], positionPiece2[1]);
+
+        this.putPiece(positionPiece1[0], positionPiece1[1], candy2);
+        this.putPiece(positionPiece2[0], positionPiece2[1], candy1);
+    }
+
     public void putPiece(int row, int colum, Object piece){
         this.board[row][colum] = piece;
     }
@@ -33,7 +41,7 @@ public class Board {
         return this.board[row][column];
     }
 
-    public void prinBoard(){
+    public void printBoard(){
 
         //Imprimir encabezado
         for(int i = -1; i<this.width; i++){
@@ -77,4 +85,31 @@ public class Board {
         }
         return column;
     }
+
+    public boolean isValidPositionPiece(int position, Character axis) {
+        boolean isValidPosition;
+        if (axis.equals('x') && position < 0 || position >= this.width) {
+            isValidPosition = false;
+        } else if (axis.equals('y') && position < 0 || position >= this.height) {
+            isValidPosition = false;
+        } else {
+            isValidPosition = true;
+        }
+        return isValidPosition;
+    }
+
+    public boolean T_linedPiecesTogether(int[] positionCandy1, int[] positionCandy2){
+        boolean aligned = false;
+
+        if (Math.abs(positionCandy1[0] - positionCandy2[0]) == 1
+                    && Math.abs(positionCandy1[1] - positionCandy2[1]) == 0
+                    || Math.abs(positionCandy1[0] - positionCandy2[0]) == 0
+                            && Math.abs(positionCandy1[1] - positionCandy2[1]) == 1) {
+                aligned = true;
+            } else {
+                aligned = false;
+            }
+        return aligned;
+    }
+
 }
