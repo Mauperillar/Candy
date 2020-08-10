@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 public class Game {
-    private Board board = new Board();
+    public Board board = new Board();
     private Candies candies = new Candies();
     private Player player;
     private int availableMovements = 50;
@@ -12,7 +12,8 @@ public class Game {
     Game() {
         System.out.print("Escriba su nombre: ");
         this.player = new Player(this.scanner.nextLine());
-        this.startGame();
+        this.fillAllBoard();
+        //this.startGame();
     }
 
     private void startGame() {
@@ -26,7 +27,6 @@ public class Game {
 
             while (this.availableMovements > 0 && this.points < 1000) {
                 if(!this.canMakeMoreMovements()){
-                    System.out.println("No que crazy");
                     this.fillAllBoard();
                 }
                 this.exchangeCandy();
@@ -416,5 +416,9 @@ public class Game {
             }
         }
         return false;
+    }
+
+    public Board getBoard(){
+        return this.board;
     }
 }
