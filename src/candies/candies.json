@@ -1,0 +1,43 @@
+[
+    {
+        "name" : "sausage",
+        "icon" : "src/Candies/images/flower.png",
+        "sign" : "§",
+        "color" : "red"
+    },
+
+    {
+        "name" : "lozenge",
+        "icon" : "",
+        "sign" : "€",
+        "color": "orange"
+    },
+
+    {
+        "name" : "teardrop",
+        "icon" : "",
+        "sign" : "¶",
+        "color" : "yellow"
+    },
+
+    {
+        "name" : "pillow",
+        "icon" : "",
+        "sign" : "Ώ",
+        "color" : "green"
+    },
+
+    {
+        "name" : "planet",
+        "icon" : "",
+        "sign" : "©",
+        "color" : "blue"
+    },
+
+    {
+        "name" : "flower",
+        "icon" : "",
+        "sign" : "*",
+        "color" : "¥"
+    }
+]

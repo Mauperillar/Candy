@@ -1,16 +1,20 @@
+package logic;
+
+import javax.swing.*;
+
 public class Board {
     private int width = 9;
     private int height = 9;
-    public Object[][] board;
+    public JButton[][] board;
     
     Board(){
-        this.board = new Object[this.width][this.height];
+        this.board = new JButton[this.width][this.height];
     }
 
     Board(int height, int width){
         this.height = height;
         this.width = width;
-        this.board = new Object[this.width][this.height];
+        this.board = new JButton[this.width][this.height];
     }
 
     public int getHeight(){
@@ -22,54 +26,41 @@ public class Board {
     }
 
     public void changePositionBetweenPieces(int[] positionPiece1, int positionPiece2[]){
-        Object candy1 = this.getPiece(positionPiece1[0], positionPiece1[1]);
-        Object candy2 = this.getPiece(positionPiece2[0], positionPiece2[1]);
+        Icon iconOfPiece1 = this.getPieceIcon(positionPiece1[0], positionPiece1[1]);
+        Icon iconOfPiece2 = this.getPieceIcon(positionPiece2[0], positionPiece2[1]);
 
-        this.putPiece(positionPiece1[0], positionPiece1[1], candy2);
-        this.putPiece(positionPiece2[0], positionPiece2[1], candy1);
+        this.putPieceIcon(positionPiece1[0], positionPiece1[1], iconOfPiece2);
+        this.putPieceIcon(positionPiece2[0], positionPiece2[1], iconOfPiece1);
     }
 
-    public void putPiece(int row, int colum, Object piece){
-        this.board[row][colum] = piece;
+    public void putPiece(int row, int colum, JButton button){
+        this.board[row][colum] = button;
     }
 
-    public void removePiece(int row, int colum){
-        this.board[row][colum] = '_';
+    public void putPieceIcon(int row, int colum, Icon icon){
+        this.board[row][colum].setIcon(icon);
     }
 
-    public Object getPiece(int row, int column){
+    public void removePieceIcon(int row, int colum){
+        this.board[row][colum].setIcon(null);
+        try {
+            Thread.sleep(5000);
+            System.out.println("Removido");
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public JButton getPiece(int row, int column){
         return this.board[row][column];
     }
 
-    public void printBoard(){
-
-        //Imprimir encabezado
-        for(int i = -1; i<this.width; i++){
-            if(i==-1){
-                System.out.print(" ");
-            }else{
-                System.out.print(" "+i);
-            }
-        }
-
-        System.out.println();
-        //Imprimir contenido
-        for(int row=0; row<this.width; row++){
-            for(int column=-1; column<this.height; column++){
-                if(column==-1){
-                    System.out.print(row);
-                }else{
-                    System.out.print(" "+this.board[row][column]);
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println();
+    public Icon getPieceIcon(int row, int column){
+        return this.board[row][column].getIcon();
     }
-    
-    public Object[] getRow(int index){
-        Object[] row = new Object[this.width];
+
+    public JButton[] getRow(int index){
+        JButton[] row = new JButton[this.width];
 
         for(int i = 0; i<this.height; i++){
             row[i] = this.board[index][i];
@@ -77,8 +68,8 @@ public class Board {
         return row;
     }
 
-    public Object[] getColumn(int index){
-        Object[] column = new Object[this.height];
+    public JButton[] getColumn(int index){
+        JButton[] column = new JButton[this.height];
 
         for(int i = 0; i<this.height; i++){
             column[i] = this.board[i][index];

@@ -1,3 +1,5 @@
+package logic;
+
 public class Player {
     private String name;
     private int lifes;
@@ -25,7 +27,7 @@ public class Player {
         this.name = name;
     }
 
-    public int getLifes() {
+    public int getLifes(){
         return lifes;
     }
 
