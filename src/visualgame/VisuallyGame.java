@@ -6,6 +6,7 @@ import javax.swing.*;
 import logic.Game;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 public class VisuallyGame extends JFrame {
@@ -13,24 +14,25 @@ public class VisuallyGame extends JFrame {
      *
      */
     private static final long serialVersionUID = 1L;
-    private JPanel scorePanel, boardGamePanel;
+    public JPanel scorePanel, boardGamePanel;
     private Game game;
+    public int selectedButtons = 0;
 
     public VisuallyGame(Game game) {
         this.game = game;
         this.configFrame();
         this.initComponents();
+        this.pack();
     }
 
     private void configFrame() {
         this.setSize(500, 500);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.getContentPane().setLayout(new GridLayout(1, 2));
+        this.getContentPane().setLayout(new FlowLayout());
     }
 
     private void initComponents() {
-        System.out.println(this.game.getBoard().getHeight());
 
         this.scorePanel = new JPanel();
         this.scorePanel.setSize(150, 500);
@@ -38,26 +40,30 @@ public class VisuallyGame extends JFrame {
         this.getContentPane().add(this.scorePanel);
 
         this.boardGamePanel = new JPanel();
-        this.boardGamePanel.setLayout(new GridLayout(9, 9));
+        this.boardGamePanel.setLayout(new GridLayout(game.board.getWidth(), game.board.getHeight()));
 
-        for (int row = 0; row < this.game.board.getWidth(); row++) {
-            for (int column = 0; column < this.game.board.getHeight(); column++) {
-                this.game.board.board[row][column].addMouseListener( new MouseAdapter() {
-                    public void mouseClicked(MouseEvent evt) {
-                        piecePressed(evt);
-                    }
-                });
-                this.boardGamePanel.add(this.game.board.board[row][column]);
-            }
-        }
-        
+        this.fillBoardGamePanel();
         this.getContentPane().add(this.boardGamePanel);
 
         this.setVisible(true);
     }
 
+    private void fillBoardGamePanel(){
+        for (int row = 0; row < this.game.board.getWidth(); row++) {
+            for (int column = 0; column < this.game.board.getHeight(); column++) {
+                this.game.board.board[row][column].addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        piecePressed(evt);
+                    }
+                });
 
-    private void piecePressed(MouseEvent evt) {
+                this.boardGamePanel.add(this.game.board.board[row][column]);
+            }
+        }
+
+    }
+    
+    private void piecePressed(ActionEvent evt) {
         int[] positionPiece = this.getIndexOfPiece((JButton) evt.getSource());
         this.game.addPositionOfSelectedPiece(positionPiece);
     }

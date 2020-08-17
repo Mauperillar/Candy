@@ -1,13 +1,15 @@
 package logic;
 
 import java.awt.Dimension;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 
-import candies.*;
+import logic.candies.Candy;
+import logic.candies.ListCandies;
 import visualgame.*;
 
 public class Game {
@@ -27,22 +29,21 @@ public class Game {
         this.player = new Player(this.scanner.nextLine());
         this.fillAllBoard();
         this.visuallyGame = new VisuallyGame(this);
-        // this.rewievRepeatedCandiesOnBoard();
-        // this.startGame();
+        this.startGame();
     }
 
     public void addPositionOfSelectedPiece(int[] position) {
 
         if (this.positionOfSelectedCandies.containsKey("candy1")) {
-            this.positionOfSelectedCandies.put("candy2", position);
+
+            if (Arrays.equals(this.positionOfSelectedCandies.get("candy1"), position)) {
+                this.positionOfSelectedCandies.clear();
+            } else {
+                this.positionOfSelectedCandies.put("candy2", position);
+            }
+
         } else {
             this.positionOfSelectedCandies.put("candy1", position);
-        }
-
-        if (this.positionOfSelectedCandies.containsKey("candy1")
-                && this.positionOfSelectedCandies.containsKey("candy2")) {
-            System.out.println("Entro");
-            this.exchangeCandy();
         }
 
     }
@@ -52,14 +53,15 @@ public class Game {
         boolean wantToPlay = true;
 
         while (canToPlay && wantToPlay) {
-            this.fillAllBoard();
             this.rewievRepeatedCandiesOnBoard();
-
             while (this.availableMovements > 0 && this.points < 1000) {
                 if (!this.canMakeMoreMovements()) {
                     this.fillAllBoard();
                 }
-                this.exchangeCandy();
+                if (positionOfSelectedCandies.containsKey("candy2")) {
+                    this.exchangeSelectedCandy();
+                    this.positionOfSelectedCandies.clear();
+                }
             }
 
             if (this.points < 1000) {
@@ -72,7 +74,9 @@ public class Game {
             if (canToPlay) {
                 wantToPlay = this.scanner.nextBoolean();
             }
+            this.fillAllBoard();
         }
+
     }
 
     private boolean canToPlay() {
@@ -203,6 +207,7 @@ public class Game {
             } else if (eje.equals('y')) {
                 this.board.removePieceIcon(i, indexAxis);
             }
+            this.sleep();
         }
     }
 
@@ -231,12 +236,8 @@ public class Game {
             }
             Candy newCandy = this.candies.getRandomCandy();
             this.board.putPieceIcon(0, column, newCandy.getIcon());
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
         }
+        this.sleep();
     }
 
     private void descendCandyYAxis(int[] rangeEmpty, int indexColumn) {
@@ -254,40 +255,32 @@ public class Game {
         this.board.putPieceIcon(0, indexColumn, newCandy.getIcon());
     }
 
-    private void exchangeCandy() {
+    public void exchangeSelectedCandy() {
         boolean canExchange = false;
         boolean hadRepeated = false;
 
-        System.out.println(positionOfSelectedCandies.get("candy1")[0]);
-        System.out.println(positionOfSelectedCandies.get("candy2")[0]);
-
-        canExchange = this.board.T_linedPiecesTogether(positionOfSelectedCandies.get("candy1"),
-                positionOfSelectedCandies.get("candy2"));
-
-        System.out.println(canExchange);
+        if (positionOfSelectedCandies.containsKey("candy1") && positionOfSelectedCandies.containsKey("candy2")) {
+            canExchange = this.board.T_linedPiecesTogether(positionOfSelectedCandies.get("candy1"),
+                    positionOfSelectedCandies.get("candy2"));
+        }
 
         if (canExchange) {
-            
+
             this.board.changePositionBetweenPieces(positionOfSelectedCandies.get("candy1"),
                     positionOfSelectedCandies.get("candy2"));
 
-            // hadRepeated = this.rewievRepeatedCandiesOnBoard();
+            this.visuallyGame.repaint();
+
+            hadRepeated = this.rewievRepeatedCandiesOnBoard();
 
             if (!hadRepeated) {
                 this.board.changePositionBetweenPieces(positionOfSelectedCandies.get("candy1"),
                         positionOfSelectedCandies.get("candy2"));
 
-                System.out.println(
-                        "/!/  No se puede intercambiar estos dulces, intente con otros para crea una fila con más de 3 dulces seguidos\n");
-
+            } else {
+                this.availableMovements--;
             }
-
-            this.availableMovements--;
         }
-
-        positionOfSelectedCandies.remove("candy1");
-        positionOfSelectedCandies.remove("candy2");
-
     }
 
     private boolean canMakeMoreMovements() {
@@ -422,7 +415,13 @@ public class Game {
         return false;
     }
 
-    public Board getBoard() {
-        return this.board;
+    private void sleep() {
+
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
     }
+
 }

@@ -6,26 +6,26 @@ public class Board {
     private int width = 9;
     private int height = 9;
     public JButton[][] board;
-    
-    Board(){
+
+    Board() {
         this.board = new JButton[this.width][this.height];
     }
 
-    Board(int height, int width){
+    Board(int height, int width) {
         this.height = height;
         this.width = width;
         this.board = new JButton[this.width][this.height];
     }
 
-    public int getHeight(){
+    public int getHeight() {
         return this.height;
     }
 
-    public int getWidth(){
+    public int getWidth() {
         return this.width;
     }
 
-    public void changePositionBetweenPieces(int[] positionPiece1, int positionPiece2[]){
+    public void changePositionBetweenPieces(int[] positionPiece1, int positionPiece2[]) {
         Icon iconOfPiece1 = this.getPieceIcon(positionPiece1[0], positionPiece1[1]);
         Icon iconOfPiece2 = this.getPieceIcon(positionPiece2[0], positionPiece2[1]);
 
@@ -33,73 +33,54 @@ public class Board {
         this.putPieceIcon(positionPiece2[0], positionPiece2[1], iconOfPiece1);
     }
 
-    public void putPiece(int row, int colum, JButton button){
+    public void putPiece(int row, int colum, JButton button) {
         this.board[row][colum] = button;
     }
 
-    public void putPieceIcon(int row, int colum, Icon icon){
+    public void putPieceIcon(int row, int colum, Icon icon) {
         this.board[row][colum].setIcon(icon);
     }
 
-    public void removePieceIcon(int row, int colum){
+    public void removePieceIcon(int row, int colum) {
         this.board[row][colum].setIcon(null);
-        try {
-            Thread.sleep(5000);
-            System.out.println("Removido");
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
     }
 
-    public JButton getPiece(int row, int column){
+    public JButton getPiece(int row, int column) {
         return this.board[row][column];
     }
 
-    public Icon getPieceIcon(int row, int column){
+    public Icon getPieceIcon(int row, int column) {
         return this.board[row][column].getIcon();
     }
 
-    public JButton[] getRow(int index){
+    public JButton[] getRow(int index) {
         JButton[] row = new JButton[this.width];
 
-        for(int i = 0; i<this.height; i++){
+        for (int i = 0; i < this.height; i++) {
             row[i] = this.board[index][i];
         }
         return row;
     }
 
-    public JButton[] getColumn(int index){
+    public JButton[] getColumn(int index) {
         JButton[] column = new JButton[this.height];
 
-        for(int i = 0; i<this.height; i++){
+        for (int i = 0; i < this.height; i++) {
             column[i] = this.board[i][index];
         }
         return column;
     }
 
-    public boolean isValidPositionPiece(int position, Character axis) {
-        boolean isValidPosition;
-        if (axis.equals('x') && position < 0 || position >= this.width) {
-            isValidPosition = false;
-        } else if (axis.equals('y') && position < 0 || position >= this.height) {
-            isValidPosition = false;
-        } else {
-            isValidPosition = true;
-        }
-        return isValidPosition;
-    }
-
-    public boolean T_linedPiecesTogether(int[] positionCandy1, int[] positionCandy2){
+    public boolean T_linedPiecesTogether(int[] positionCandy1, int[] positionCandy2) {
         boolean aligned = false;
 
-        if (Math.abs(positionCandy1[0] - positionCandy2[0]) == 1
-                    && Math.abs(positionCandy1[1] - positionCandy2[1]) == 0
-                    || Math.abs(positionCandy1[0] - positionCandy2[0]) == 0
-                            && Math.abs(positionCandy1[1] - positionCandy2[1]) == 1) {
-                aligned = true;
-            } else {
-                aligned = false;
-            }
+        if (Math.abs(positionCandy1[0] - positionCandy2[0]) == 1 && Math.abs(positionCandy1[1] - positionCandy2[1]) == 0
+                || Math.abs(positionCandy1[0] - positionCandy2[0]) == 0
+                        && Math.abs(positionCandy1[1] - positionCandy2[1]) == 1) {
+            aligned = true;
+        } else {
+            aligned = false;
+        }
         return aligned;
     }
 

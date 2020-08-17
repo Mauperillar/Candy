@@ -1,4 +1,4 @@
-package candies;
+package logic.candies;
 
 import java.awt.Image;
 
@@ -17,7 +17,7 @@ public class Candy {
         this.sign = sign;
         this.srcIcon = srcIcon;
         this.color = color;
-        ImageIcon iconImagen = new ImageIcon(getClass().getResource("/Candies"+srcIcon));
+        ImageIcon iconImagen = new ImageIcon(getClass().getResource("/logic/candies"+srcIcon));
         this.icon = (Icon) new ImageIcon(iconImagen.getImage().getScaledInstance(69, 67, Image.SCALE_AREA_AVERAGING));
         
     }

@@ -1,4 +1,4 @@
-package candies;
+package logic.candies;
 
 import java.util.ArrayList;
 
