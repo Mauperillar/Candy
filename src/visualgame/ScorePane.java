@@ -15,7 +15,7 @@ public class ScorePane extends JPanel {
      */
     private static final long serialVersionUID = 1L;
     
-    private JLabel score, movements;
+    private JLabel score, movements, name;
     private JProgressBar progressBar = new JProgressBar();
 
     ScorePane(){
@@ -31,11 +31,11 @@ public class ScorePane extends JPanel {
         this.configScorePane();
         this.configProgressBar();
 
-
+        this.name = new JLabel("Jugador: Player1");
         this.score = new JLabel("Puntaje: 0");
-
         this.movements = new JLabel("Movimientos: 0");
 
+        this.add(name, new GridBagConstraints());
         this.add(score, new GridBagConstraints());
         this.add(movements, new GridBagConstraints());
         this.add(this.progressBar, new GridBagConstraints());
@@ -53,6 +53,10 @@ public class ScorePane extends JPanel {
 
     private void configProgressBar(){
         //
+    }
+
+    public void setName(String newName){
+        this.name.setText(newName);
     }
 
     public void setValueScore(int newValue){

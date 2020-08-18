@@ -1,6 +1,5 @@
 package logic;
 
-import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -18,7 +17,7 @@ public class Game {
     private Player player;
     private int availableMovements = 50;
     private int points = 0;
-    private int scoringTarget = 1000;
+    private int scoringTarget = 5000;
     HashMap<String, int[]> positionOfSelectedCandies = new HashMap<String, int[]>();
 
     public VisuallyGame visuallyGame;
@@ -62,7 +61,6 @@ public class Game {
                     this.positionOfSelectedCandies.clear();
                 }
             }
-            
 
             if (this.points < 1000) {
                 this.player.decreaseLife(1);
@@ -111,38 +109,37 @@ public class Game {
         }
 
         this.visuallyGame.getScorePanel().setValueScore(this.points);
-
-        
         this.visuallyGame.getScorePanel().setValueProgressBar(this.getPercentScore());
     }
 
-    public int getPoints(){
+    public int getPoints() {
         return this.points;
     }
 
-    public int getPercentScore(){
-        int percentScore = (this.points*100)/ this.scoringTarget;
+    public int getPercentScore() {
+        int percentScore = (this.points * 100) / this.scoringTarget;
         return percentScore;
     }
 
-    public int getAvailableMovements(){
+    public int getAvailableMovements() {
         return this.availableMovements;
     }
-    
-    private void decreaseMovements(){
+
+    private void decreaseMovements() {
         this.availableMovements--;
         this.visuallyGame.getScorePanel().setValueMovements(this.availableMovements);
     }
 
-    public void resetGame(){
+    public void resetGame() {
         this.points = 0;
         this.availableMovements = 50;
+        this.visuallyGame.getScorePanel().setName("Jugador: "+this.player.getName());
         this.visuallyGame.getScorePanel().setValueScore(this.points);
         this.visuallyGame.getScorePanel().setValueMovements(this.availableMovements);
         this.visuallyGame.getScorePanel().setValueProgressBar(0);
         this.fillAllBoard();
     }
-    
+
     private boolean rewievRepeatedCandiesOnBoard() {
         boolean haveRepeatedCandies = false;
         boolean hasTheBoardChanged;
@@ -226,8 +223,6 @@ public class Game {
     }
 
     private void removeCandyOnline(int from, int to, Character eje, int indexAxis) {
-        System.out.println("/// Removiendo dulces repetidos ///");
-        System.out.println();
         for (int i = from; i <= to; i++) {
             if (eje.equals('x')) {
                 this.board.removePieceIcon(indexAxis, i);
