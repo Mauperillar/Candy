@@ -3,10 +3,10 @@ package logic;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Scanner;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 import logic.candies.Candy;
 import logic.candies.ListCandies;
@@ -18,16 +18,13 @@ public class Game {
     private Player player;
     private int availableMovements = 50;
     private int points = 0;
+    private int scoringTarget = 1000;
     HashMap<String, int[]> positionOfSelectedCandies = new HashMap<String, int[]>();
 
     public VisuallyGame visuallyGame;
 
-    Scanner scanner = new Scanner(System.in);
-
     Game() {
-        System.out.print("Escriba su nombre: ");
-        this.player = new Player(this.scanner.nextLine());
-        this.fillAllBoard();
+        this.player = new Player(JOptionPane.showInputDialog("Ingrese su nombre"));
         this.visuallyGame = new VisuallyGame(this);
         this.startGame();
     }
@@ -53,8 +50,10 @@ public class Game {
         boolean wantToPlay = true;
 
         while (canToPlay && wantToPlay) {
+            this.resetGame();
             this.rewievRepeatedCandiesOnBoard();
-            while (this.availableMovements > 0 && this.points < 1000) {
+
+            while (this.availableMovements > 0 && this.points < this.scoringTarget) {
                 if (!this.canMakeMoreMovements()) {
                     this.fillAllBoard();
                 }
@@ -63,27 +62,26 @@ public class Game {
                     this.positionOfSelectedCandies.clear();
                 }
             }
+            
 
             if (this.points < 1000) {
                 this.player.decreaseLife(1);
+                this.visuallyGame.showMessage(":\'( No lo lograste, perdiste una vida");
             } else {
                 this.player.levelUp();
+                this.visuallyGame.showMessage("Felicidades, ganaste");
             }
 
             canToPlay = this.canToPlay();
             if (canToPlay) {
-                wantToPlay = this.scanner.nextBoolean();
+                wantToPlay = this.visuallyGame.getWantToPlay();
             }
-            this.fillAllBoard();
         }
 
     }
 
     private boolean canToPlay() {
         boolean can = this.player.getLifes() > 0;
-        if (!can) {
-            System.out.println("Oh no! No tienes más vidas para jugar");
-        }
         return can;
     }
 
@@ -91,10 +89,7 @@ public class Game {
         for (int row = 0; row < this.board.getWidth(); row++) {
             for (int column = 0; column < this.board.getHeight(); column++) {
                 Candy newCandy = this.candies.getRandomCandy();
-                JButton button = new JButton(newCandy.getIcon());
-                button.setMaximumSize(new Dimension(70, 70));
-                button.setMinimumSize(new Dimension(70, 70));
-                this.board.putPiece(row, column, button);
+                this.board.putPieceIcon(row, column, newCandy.getIcon());
             }
         }
     }
@@ -114,8 +109,40 @@ public class Game {
                 this.points += 400;
                 break;
         }
+
+        this.visuallyGame.getScorePanel().setValueScore(this.points);
+
+        
+        this.visuallyGame.getScorePanel().setValueProgressBar(this.getPercentScore());
     }
 
+    public int getPoints(){
+        return this.points;
+    }
+
+    public int getPercentScore(){
+        int percentScore = (this.points*100)/ this.scoringTarget;
+        return percentScore;
+    }
+
+    public int getAvailableMovements(){
+        return this.availableMovements;
+    }
+    
+    private void decreaseMovements(){
+        this.availableMovements--;
+        this.visuallyGame.getScorePanel().setValueMovements(this.availableMovements);
+    }
+
+    public void resetGame(){
+        this.points = 0;
+        this.availableMovements = 50;
+        this.visuallyGame.getScorePanel().setValueScore(this.points);
+        this.visuallyGame.getScorePanel().setValueMovements(this.availableMovements);
+        this.visuallyGame.getScorePanel().setValueProgressBar(0);
+        this.fillAllBoard();
+    }
+    
     private boolean rewievRepeatedCandiesOnBoard() {
         boolean haveRepeatedCandies = false;
         boolean hasTheBoardChanged;
@@ -278,7 +305,7 @@ public class Game {
                         positionOfSelectedCandies.get("candy2"));
 
             } else {
-                this.availableMovements--;
+                this.decreaseMovements();
             }
         }
     }

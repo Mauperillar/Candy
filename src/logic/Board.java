@@ -1,5 +1,7 @@
 package logic;
 
+import java.awt.Dimension;
+
 import javax.swing.*;
 
 public class Board {
@@ -9,12 +11,14 @@ public class Board {
 
     Board() {
         this.board = new JButton[this.width][this.height];
+        this.fillAllBoard();
     }
 
     Board(int height, int width) {
         this.height = height;
         this.width = width;
         this.board = new JButton[this.width][this.height];
+        this.fillAllBoard();
     }
 
     public int getHeight() {
@@ -84,4 +88,14 @@ public class Board {
         return aligned;
     }
 
+    public void fillAllBoard(){
+        for (int row = 0; row < this.getWidth(); row++) {
+            for (int column = 0; column < this.getHeight(); column++) {
+                JButton button = new JButton();
+                button.setMaximumSize(new Dimension(70, 70));
+                button.setMinimumSize(new Dimension(70, 70));
+                this.putPiece(row, column, button);
+            }
+        }
+    }
 }
